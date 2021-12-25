@@ -33,7 +33,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # use your own receiver_server address
-    sender = imagezmq.ImageSender(connect_to=args.receiver_ip)
+    sender = imagezmq.ImageSender(connect_to=args.receiver_ip, REQ_REP=False)
 
     sender_name = socket.gethostname()
 
