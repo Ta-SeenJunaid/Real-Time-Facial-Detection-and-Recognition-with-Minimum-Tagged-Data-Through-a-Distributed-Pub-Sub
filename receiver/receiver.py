@@ -1,6 +1,12 @@
+import os
+import sys
 import threading
+import traceback
 
+import cv2
 import imagezmq
+
+from image_processing import find_encodings, process_image
 
 
 class Receiver:
@@ -20,16 +26,51 @@ class Receiver:
             raise TimeoutError(
                 f'Timeout while reading from subscriber tcp://{self.hostname}:{self.port}'
             )
-        self.__data_ready.clear()
+        self._data_ready.clear()
         return self._data
 
     def _run(self):
         receiver = imagezmq.ImageHub(
             f'tcp://{self.hostname}:{self.port}', REQ_REP=False)
         while not self._stop:
-            self._data = receiver.recv_jpg()
+            self._data = receiver.recv_image()
             self._data_ready.set()
         receiver.close()
 
     def close(self):
         self._stop = True
+
+
+if __name__ == "__main__":
+
+    hostname = "0.0.0.0"  # Use to receive from localhost
+    port = 5555
+    receiver = Receiver(hostname, port)
+
+    path = 'image_attendance'
+    images = []
+    class_names = []
+    my_list = os.listdir(path)
+
+    for cl in my_list:
+        cur_img = cv2.imread(f'{path}/{cl}')
+        images.append(cur_img)
+        class_names.append(os.path.splitext(cl)[0])
+    print(class_names)
+
+    encode_list_known = find_encodings(images)
+    print('Encoding Complete')
+
+    try:
+        while True:
+            sender_name, image = receiver.receive()
+            process_image(image, sender_name, encode_list_known, class_names)
+    except (KeyboardInterrupt, SystemExit):
+        print('Exit due to keyboard interrupt')
+    except Exception as ex:
+        print('Python error with no Exception handler:')
+        print('Traceback error:', ex)
+        traceback.print_exc()
+    finally:
+        receiver.close()
+        sys.exit()

@@ -50,6 +50,7 @@ def process_image(image, sender_name, encode_list_known, class_names):
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
             cv2.rectangle(image, (x1, y2-35), (x2, y2), (0, 255, 0), cv2.FILLED)
             cv2.putText(image, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
-            mark_attendance(name)
+            # mark_attendance(name)
 
     cv2.imshow(sender_name, image)
+    cv2.waitKey(1)
