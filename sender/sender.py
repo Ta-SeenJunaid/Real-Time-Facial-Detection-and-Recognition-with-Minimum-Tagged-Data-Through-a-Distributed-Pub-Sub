@@ -14,9 +14,9 @@ if __name__ == "__main__":
         description="This is sender which will send"
                     "real time video to receiver")
 
-    parser.add_argument('--receiver_ip', required=False,
-                        help='please provide the receiver IP, '
-                             'example: --receiver_ip \'tcp://192.168.0.101:5555\', '
+    parser.add_argument('--sender_ip', required=False,
+                        help='please provide the sender IP, '
+                             'example: --sender_ip \'tcp://192.168.0.101:5555\', '
                              'default=\'tcp://0.0.0.0:5555\'',
                         type=str,
                         default='tcp://0.0.0.0:5555')
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # use your own receiver_server address
-    sender = imagezmq.ImageSender(connect_to=args.receiver_ip, REQ_REP=False)
+    sender = imagezmq.ImageSender(connect_to=args.sender_ip, REQ_REP=False)
 
     sender_name = socket.gethostname()
 
