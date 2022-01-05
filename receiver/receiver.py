@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 import threading
@@ -9,29 +10,36 @@ import imagezmq
 from image_processing import find_encodings, process_image
 
 
+def bootstrap_args_type_sender_ips(sender_ips_str_arg):
+    sender_ip = []
+    for arg in sender_ips_str_arg.split(','):
+        arg = str(arg)
+        sender_ip.append(arg)
+
+    return sender_ip
+
+
 class Receiver:
 
-    def __init__(self, hostname, port):
-        self.hostname = hostname
-        self.port = port
+    def __init__(self, tcp_ip):
+        self.tcp_ip = tcp_ip
         self._stop = False
         self._data_ready = threading.Event()
         self._thread = threading.Thread(target=self._run, args=())
         self._thread.daemon = True
         self._thread.start()
 
-    def receive(self, timeout=60.00):
+    def receive(self, timeout=1000.00):
         flag = self._data_ready.wait(timeout=timeout)
         if not flag:
             raise TimeoutError(
-                f'Timeout while reading from subscriber tcp://{self.hostname}:{self.port}'
+                f'Timeout while reading from subscriber {tcp_ip}'
             )
         self._data_ready.clear()
         return self._data
 
     def _run(self):
-        receiver = imagezmq.ImageHub(
-            f'tcp://{self.hostname}:{self.port}', REQ_REP=False)
+        receiver = imagezmq.ImageHub(tcp_ip, REQ_REP=False)
         while not self._stop:
             self._data = receiver.recv_image()
             self._data_ready.set()
@@ -43,9 +51,22 @@ class Receiver:
 
 if __name__ == "__main__":
 
-    hostname = "0.0.0.0"  # Use to receive from localhost
-    port = 5555
-    receiver = Receiver(hostname, port)
+    parser = argparse.ArgumentParser(
+        description="This is receiver which will receive"
+                    "real time video from receiver")
+
+    parser.add_argument('--sender_ip', required=False,
+                        help='please provide all the sender IP in comma separated formation, '
+                             'example: --sender_ip \'tcp://192.168.0.101:5555, '
+                             'tcp://192.168.0.106 :5555\', '
+                             'default= tcp://0.0.0.0:5555 ',
+                        type=bootstrap_args_type_sender_ips,
+                        default='tcp://0.0.0.0:5555')
+
+    args = parser.parse_args()
+
+    tcp_ip = args.sender_ip[0]
+    receiver = Receiver(tcp_ip)
 
     path = 'image_attendance'
     images = []
