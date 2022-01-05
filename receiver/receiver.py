@@ -33,17 +33,17 @@ class Receiver:
         flag = self._data_ready.wait(timeout=timeout)
         if not flag:
             raise TimeoutError(
-                f'Timeout while reading from subscriber {tcp_ip}'
+                f'Timeout while reading from subscriber {self.tcp_ip}'
             )
         self._data_ready.clear()
         return self._data
 
     def _run(self):
-        receiver = imagezmq.ImageHub(tcp_ip, REQ_REP=False)
+        self.image_hub = imagezmq.ImageHub(self.tcp_ip, REQ_REP=False)
         while not self._stop:
-            self._data = receiver.recv_image()
+            self._data = self.image_hub.recv_image()
             self._data_ready.set()
-        receiver.close()
+        self.image_hub.close()
 
     def close(self):
         self._stop = True
@@ -65,9 +65,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    tcp_ip = args.sender_ip[0]
-    receiver = Receiver(tcp_ip)
-
     path = 'image_attendance'
     images = []
     class_names = []
@@ -81,6 +78,11 @@ if __name__ == "__main__":
 
     encode_list_known = find_encodings(images)
     print('Encoding Complete')
+
+    receiver = Receiver(args.sender_ip[0])
+
+    for sender_tcp_ip in args.sender_ip[1:]:
+        receiver.image_hub.connect(sender_tcp_ip)
 
     try:
         while True:
