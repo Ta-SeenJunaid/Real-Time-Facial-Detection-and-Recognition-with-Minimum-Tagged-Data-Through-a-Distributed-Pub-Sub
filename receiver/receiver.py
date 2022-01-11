@@ -23,6 +23,7 @@ class Receiver:
 
     def __init__(self, tcp_ip):
         self.tcp_ip = tcp_ip
+        self.image_hub = imagezmq.ImageHub(self.tcp_ip, REQ_REP=False)
         self._stop = False
         self._data_ready = threading.Event()
         self._thread = threading.Thread(target=self._run, args=())
@@ -39,7 +40,6 @@ class Receiver:
         return self._data
 
     def _run(self):
-        self.image_hub = imagezmq.ImageHub(self.tcp_ip, REQ_REP=False)
         while not self._stop:
             self._data = self.image_hub.recv_image()
             self._data_ready.set()

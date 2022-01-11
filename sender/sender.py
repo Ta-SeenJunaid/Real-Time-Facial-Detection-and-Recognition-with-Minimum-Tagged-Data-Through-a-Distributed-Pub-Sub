@@ -48,6 +48,7 @@ if __name__ == "__main__":
         while True:
             image = cam.read()
             sender.send_image(sender_name, image)
+            time.sleep(1)
     except(KeyboardInterrupt, SystemExit):
         print('Exit due to keyboard interrupt')
     except Exception as ex:
