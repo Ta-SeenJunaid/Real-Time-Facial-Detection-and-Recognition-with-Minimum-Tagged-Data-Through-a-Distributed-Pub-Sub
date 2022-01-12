@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--sender_ip', required=False,
                         help='please provide all the sender IP in comma separated formation, '
-                             'example: --sender_ip \'tcp://192.168.0.101:5555, '
+                             'example: python3 receiver.py --sender_ip \'tcp://192.168.0.101:5555, '
                              'tcp://192.168.0.106 :5555\', '
                              'default= tcp://0.0.0.0:5555 ',
                         type=bootstrap_args_type_sender_ips,

@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--sender_ip', required=False,
                         help='please provide the sender IP, '
-                             'example: --sender_ip \'tcp://192.168.0.101:5555\', '
+                             'example: python3 sender.py --sender_ip \'tcp://192.168.0.101:5555\', '
                              'default=\'tcp://0.0.0.0:5555\'',
                         type=str,
                         default='tcp://0.0.0.0:5555')
@@ -24,8 +24,8 @@ if __name__ == "__main__":
     parser.add_argument('--host_camera_type', required=False,
                         help='please provide the host camera type, '
                              '\'Pi Camera\' or \'Source Camera\', '
-                             'example 1: --host_camera_type \'pi_camera\', '
-                             'example 1: --host_camera_type \'source_camera\', '
+                             'example 1: python3 sender.py --host_camera_type \'pi_camera\', '
+                             'example 1: python3 sender.py --host_camera_type \'source_camera\', '
                              'default=\'source_camera\'',
                         type=str,
                         default='source_camera')
