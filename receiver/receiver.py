@@ -21,9 +21,13 @@ def bootstrap_args_type_sender_ips(sender_ips_str_arg):
 
 class Receiver:
 
-    def __init__(self, tcp_ip):
+    def __init__(self, tcp_ip, stream_monitor_tcp_ip=None):
         self.tcp_ip = tcp_ip
         self.image_hub = imagezmq.ImageHub(self.tcp_ip, REQ_REP=False)
+        if stream_monitor_tcp_ip:
+            self.stream_monitor_tcp_ip = imagezmq.ImageSender(
+            connect_to = stream_monitor_tcp_ip,
+            REQ_REP=False)
         self._stop = False
         self._data_ready = threading.Event()
         self._thread = threading.Thread(target=self._run, args=())
@@ -63,6 +67,13 @@ if __name__ == "__main__":
                         type=bootstrap_args_type_sender_ips,
                         default='tcp://0.0.0.0:5555')
 
+    parser.add_argument('--stream_monitor_ip', required=False,
+                        help='please provide the stream monitor IP, '
+                             'example: python3 receiver.py --stream_monitor_ip \'tcp://192.168.0.101:5566\', '
+                             'default=None',
+                        type=str,
+                        default=None)
+
     args = parser.parse_args()
 
     path = 'image_attendance'
@@ -87,7 +98,10 @@ if __name__ == "__main__":
     try:
         while True:
             sender_name, image = receiver.receive()
-            process_image(image, sender_name, encode_list_known, class_names)
+            if args.stream_monitor_ip:
+                process_image(image, sender_name, encode_list_known, class_names, args.stream_monitor_ip)
+            else:
+                process_image(image, sender_name, encode_list_known, class_names)
     except (KeyboardInterrupt, SystemExit):
         print('Exit due to keyboard interrupt')
     except Exception as ex:

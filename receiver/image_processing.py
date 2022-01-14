@@ -27,7 +27,7 @@ def mark_attendance(name):
             f.writelines(f'\n{name},{dt_string}')
 
 
-def process_image(image, sender_name, encode_list_known, class_names):
+def process_image(image, sender_name, encode_list_known, class_names, stream_monitor_ip=None):
     image = cv2.flip(image, 1)
 
     img_small = cv2.resize(image, (0,0), None, 0.25, 0.25)
@@ -52,5 +52,8 @@ def process_image(image, sender_name, encode_list_known, class_names):
             cv2.putText(image, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
             # mark_attendance(name)
 
-    cv2.imshow(sender_name, image)
-    cv2.waitKey(1)
+    if stream_monitor_ip:
+        return image
+    else:
+        cv2.imshow(sender_name, image)
+        cv2.waitKey(1)
