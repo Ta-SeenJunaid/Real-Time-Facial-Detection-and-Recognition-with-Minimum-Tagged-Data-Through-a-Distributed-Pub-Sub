@@ -25,9 +25,9 @@ class Receiver:
         self.tcp_ip = tcp_ip
         self.image_hub = imagezmq.ImageHub(self.tcp_ip, REQ_REP=False)
         if stream_monitor_tcp_ip:
-            self.stream_monitor_tcp_ip = imagezmq.ImageSender(
-            connect_to = stream_monitor_tcp_ip,
-            REQ_REP=False)
+            self.stream_monitor = imagezmq.ImageSender(
+                connect_to=stream_monitor_tcp_ip,
+                REQ_REP=False)
         self._stop = False
         self._data_ready = threading.Event()
         self._thread = threading.Thread(target=self._run, args=())
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="This is receiver which will receive"
-                    "real time video from receiver")
+                    "real time video from sender")
 
     parser.add_argument('--sender_ip', required=False,
                         help='please provide all the sender IP in comma separated formation, '
@@ -99,7 +99,10 @@ if __name__ == "__main__":
         while True:
             sender_name, image = receiver.receive()
             if args.stream_monitor_ip:
-                process_image(image, sender_name, encode_list_known, class_names, args.stream_monitor_ip)
+                receiver.stream_monitor.send_image(
+                    process_image(
+                        image, sender_name, encode_list_known,
+                        class_names, args.stream_monitor_ip))
             else:
                 process_image(image, sender_name, encode_list_known, class_names)
     except (KeyboardInterrupt, SystemExit):

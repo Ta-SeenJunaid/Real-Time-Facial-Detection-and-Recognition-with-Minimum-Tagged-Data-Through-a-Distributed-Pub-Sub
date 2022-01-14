@@ -53,7 +53,7 @@ def process_image(image, sender_name, encode_list_known, class_names, stream_mon
             # mark_attendance(name)
 
     if stream_monitor_ip:
-        return image
+        return sender_name, image
     else:
         cv2.imshow(sender_name, image)
         cv2.waitKey(1)
