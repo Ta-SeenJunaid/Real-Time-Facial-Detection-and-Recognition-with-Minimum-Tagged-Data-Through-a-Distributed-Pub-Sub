@@ -2,6 +2,7 @@ import argparse
 
 import cv2
 import imagezmq
+from werkzeug import Request, Response, run_simple
 
 
 def send_images_to_web(receiver_ip):
@@ -10,6 +11,11 @@ def send_images_to_web(receiver_ip):
         sender_name, image = receiver.recv_image()
         jpg = cv2.imencode('.jpg', image)[1]
         yield b'--frame\r\nContent-Type:image/jpeg\r\n\r\n'+jpg.tostring()+b'\r\n'
+
+
+@Request.application
+def application(request):
+    return Response(send_images_to_web('tcp://192.168.0.101:5566'), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == '__main__':
@@ -23,6 +29,11 @@ if __name__ == '__main__':
                         help='Please provide the receiver IP, '
                              'example: python3 http_stream.py --receiver_ip '
                              '\'tcp://192.168.0.101:5566\', '
-                             'default = \'tcp://0.0.0.0:5555\'')
+                             'default = \'tcp://0.0.0.0:5566\'',
+                        type=str,
+                        default='tcp://0.0.0.0:5566'
+                        )
 
     args = parser.parse_args()
+
+    run_simple('192.168.0.101', 4000, application)

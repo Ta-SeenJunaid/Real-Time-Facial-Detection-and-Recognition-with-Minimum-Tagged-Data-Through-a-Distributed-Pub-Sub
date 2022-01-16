@@ -90,7 +90,10 @@ if __name__ == "__main__":
     encode_list_known = find_encodings(images)
     print('Encoding Complete')
 
-    receiver = Receiver(args.sender_ip[0])
+    if args.stream_monitor_ip:
+        receiver = Receiver(args.sender_ip[0], args.stream_monitor_ip)
+    else:
+        receiver = Receiver(args.sender_ip[0])
 
     for sender_tcp_ip in args.sender_ip[1:]:
         receiver.image_hub.connect(sender_tcp_ip)
@@ -99,10 +102,10 @@ if __name__ == "__main__":
         while True:
             sender_name, image = receiver.receive()
             if args.stream_monitor_ip:
-                receiver.stream_monitor.send_image(
-                    process_image(
+                sender_name, image = process_image(
                         image, sender_name, encode_list_known,
-                        class_names, args.stream_monitor_ip))
+                        class_names, args.stream_monitor_ip)
+                receiver.stream_monitor.send_image(sender_name, image)
             else:
                 process_image(image, sender_name, encode_list_known, class_names)
     except (KeyboardInterrupt, SystemExit):
