@@ -34,9 +34,24 @@ if __name__ == '__main__':
                         type=str,
                         default='tcp://0.0.0.0:5566'
                         )
+    parser.add_argument('--server_ip', required=False,
+                        help='Please provide the server IP, '
+                             'example: python3 http_stream.py --server_ip '
+                             '\'192.168.0.101\', '
+                             'default = \'0.0.0.0\'',
+                        type=str,
+                        default='0.0.0.0'
+                        )
+    parser.add_argument('--server_port', required=False,
+                        help='Please provide the server port, '
+                             'example: python3 http_stream.py --server_port 4000, '
+                             'default = 4000',
+                        type=int,
+                        default=4000
+                        )
 
     args = parser.parse_args()
 
     receiver_ip = args.receiver_ip
 
-    run_simple('192.168.0.101', 4000, application)
+    run_simple(args.server_ip, args.server_port, application)
